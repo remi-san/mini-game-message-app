@@ -99,6 +99,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
 
         $listener->setLogger($this->logger);
         $this->logger->shouldReceive('info');
+        $this->logger->shouldReceive('debug');
 
         $this->userFinder->shouldReceive('getByPlayerId')->never();
         $this->messageSender->shouldReceive('send')->never();
@@ -106,6 +107,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
         $event = \Mockery::mock(GameResultEvent::class, function ($event) {
             $event->shouldReceive('getPlayerId')->andReturn(null);
             $event->shouldReceive('getAsMessage')->andReturn(null);
+            $event->shouldReceive('getName')->andReturn('name');
         });
         $listener->handle($event);
     }
@@ -128,6 +130,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
 
         $listener->setLogger($this->logger);
         $this->logger->shouldReceive('info');
+        $this->logger->shouldReceive('debug');
 
         $this->userFinder
             ->shouldReceive('getByPlayerId')
@@ -149,6 +152,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
         $event = \Mockery::mock(GameResultEvent::class, function ($event) use ($playerId, $messageText) {
             $event->shouldReceive('getPlayerId')->andReturn($playerId);
             $event->shouldReceive('getAsMessage')->andReturn($messageText);
+            $event->shouldReceive('getName')->andReturn('name');
         });
         $listener->handle($event);
     }
