@@ -45,7 +45,7 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
     /**
      * Constructor
      *
-     * @param \MiniGameMessageApp\ReadModel\Finder\MiniGameUserFinder $userFinder
+     * @param MiniGameUserFinder $userFinder
      * @param ContextUserFinder  $contextUserFinder
      * @param MessageFinder      $messageFinder
      * @param MessageSender      $messageSender
@@ -77,7 +77,7 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
             return;
         }
 
-        $this->logger->info('Send message'); // TODO add better message
+        $this->logger->info(sprintf('Send message after "%s"', $event->getName()));
 
         $text = $event->getAsMessage(); // deal with other languages / remove getAsMessage
 
@@ -89,7 +89,7 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
                 $this->sendMessage($text, $user, $messageContext);
             }
         } else {
-            $user = $this->getUser($event->getPlayerId(), $context);
+            $user = $this->getUser($event->getPlayerId(), $messageContext);
             $this->sendMessage($text, $user, $messageContext);
         }
     }
@@ -134,9 +134,11 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
         // Build message
         $user = $this->getUserByPlayerId($playerId);
         if (!$user) {
+            $this->logger->debug('Try to get user by context message');
             $user = $this->getUserByContext($contextMessage);
             if (!$user) {
                 if (!$playerId) {
+                    $this->logger->debug('No user was found');
                     return null;
                 }
                 throw new \InvalidArgumentException('User not found!');
@@ -162,6 +164,7 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
     private function getUserByContext($contextMessage = null)
     {
         if (!$contextMessage) {
+            $this->logger->debug('No context message to retrieve user from');
             return null;
         };
 
