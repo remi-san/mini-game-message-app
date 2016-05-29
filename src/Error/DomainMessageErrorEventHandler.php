@@ -38,16 +38,15 @@ class DomainMessageErrorEventHandler implements GameErrorEventHandler, MessageEr
      */
     public function handle(EventInterface $error, $context = null)
     {
-        $message = DomainMessage::recordNow(
-            null,
-            null,
-            new Metadata(
-                [
-                    ContextEnricher::CONTEXT => $context
-                ]
-            ),
-            $error
+        $this->eventBus->publish(
+            new DomainEventStream([
+                DomainMessage::recordNow(
+                    null,
+                    null,
+                    new Metadata([ ContextEnricher::CONTEXT => $context ]),
+                    $error
+                )
+            ])
         );
-        $this->eventBus->publish(new DomainEventStream([$message]));
     }
 }
