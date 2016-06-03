@@ -6,6 +6,7 @@ use MessageApp\User\ApplicationUserId;
 use MiniGame\Entity\MiniGameId;
 use MiniGame\Entity\PlayerId;
 use MiniGameApp\ReadModel\Player;
+use MiniGameMessageApp\ReadModel\Finder\Exception\UnsupportedGameTypeException;
 
 interface ApplicationPlayerFinder
 {
@@ -32,6 +33,8 @@ interface ApplicationPlayerFinder
      * @param  string            $gameType
      *
      * @return Player The player.
+     *
+     * @throws UnsupportedGameTypeException
      */
     public function getActivePlayerForUserAndGameType(ApplicationUserId $userId, $gameType);
 
