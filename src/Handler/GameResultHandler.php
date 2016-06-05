@@ -102,12 +102,12 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
     }
 
     /**
-     * @param  EventInterface  $event
+     * @param  GameResult      $gameResult
      * @param  ApplicationUser $user
      * @param  mixed           $messageContext
      * @return void
      */
-    private function sendMessage(EventInterface $event, ApplicationUser $user = null, $messageContext = null)
+    private function sendMessage(GameResult $gameResult, ApplicationUser $user = null, $messageContext = null)
     {
         if (!$user) {
             return;
@@ -116,7 +116,7 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
         $message = new DefaultMessage(
             $user,
             $this->extractor->extractMessage(
-                $event,
+                $gameResult,
                 $user->getPreferredLanguage()
             )
         );
