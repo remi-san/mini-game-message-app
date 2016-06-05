@@ -124,7 +124,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
         });
         $this->extractor
             ->shouldReceive('extractMessage')
-            ->with($event)
+            ->with($event, 'en')
             ->andReturn(null);
 
         $listener->handle($event);
@@ -137,6 +137,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
     {
         $playerId = $this->getPlayerId(42);
         $user = $this->getApplicationUser($this->getApplicationUserId(33), 'Douglas');
+        $user->shouldReceive('getPreferredLanguage')->andReturn('fr');
         $messageText = 'toto';
 
         $listener = new GameResultHandler(
@@ -174,7 +175,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
         });
         $this->extractor
             ->shouldReceive('extractMessage')
-            ->with($event)
+            ->with($event, 'fr')
             ->andReturn($messageText);
 
         $listener->handle($event);
@@ -187,6 +188,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
     {
         $playerId = $this->getPlayerId(42);
         $user = $this->getApplicationUser($this->getApplicationUserId(33), 'Douglas');
+        $user->shouldReceive('getPreferredLanguage')->andReturn('fr');
         $messageText = 'toto';
 
         $contextMessage = \Mockery::mock(SourceMessage::class, function ($sm) {
@@ -237,7 +239,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
         });
         $this->extractor
             ->shouldReceive('extractMessage')
-            ->with($event)
+            ->with($event, 'fr')
             ->andReturn($messageText);
 
         $listener->handle($event, $context);
@@ -292,7 +294,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
         });
         $this->extractor
             ->shouldReceive('extractMessage')
-            ->with($event)
+            ->with($event, 'en')
             ->andReturn($messageText);
 
         $this->setExpectedException(\InvalidArgumentException::class);
@@ -307,6 +309,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
     {
         $gameId = $this->getMiniGameId(42);
         $user = $this->getApplicationUser($this->getApplicationUserId(33), 'Douglas');
+        $user->shouldReceive('getPreferredLanguage')->andReturn('fr');
         $messageText = 'toto';
 
         $listener = new GameResultHandler(
@@ -344,7 +347,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
         });
         $this->extractor
             ->shouldReceive('extractMessage')
-            ->with($event)
+            ->with($event, 'fr')
             ->andReturn($messageText);
 
         $listener->handle($event);

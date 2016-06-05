@@ -88,18 +88,27 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
 
         $this->logger->info(sprintf('Send message after "%s"', $event->getName()));
 
-        $text = $this->extractor->extractMessage($event);
-
         $messageContext = $this->getMessageContext($context);
 
         if ($event instanceof AllPlayersResult) {
             $users = $this->userFinder->getByGameId($event->getGameId());
             foreach ($users as $user) {
-                $this->sendMessage($text, $user, $messageContext);
+                $this->sendMessage(
+                    $this->extractor->extractMessage($event, $user->getPreferredLanguage()),
+                    $user,
+                    $messageContext
+                );
             }
         } else {
             $user = $this->getUser($event->getPlayerId(), $messageContext);
-            $this->sendMessage($text, $user, $messageContext);
+            $this->sendMessage(
+                $this->extractor->extractMessage(
+                    $event,
+                    ($user) ? $user->getPreferredLanguage() : 'en' // TODO get default language
+                ),
+                $user,
+                $messageContext
+            );
         }
     }
 

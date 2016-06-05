@@ -28,7 +28,7 @@ class MiniGameMessageExtractorTest extends \PHPUnit_Framework_TestCase
 
         $extractor = new MiniGameMessageExtractor();
 
-        $extractedMessage = $extractor->extractMessage($gameResult);
+        $extractedMessage = $extractor->extractMessage($gameResult, 'en');
 
         $this->assertEquals($message, $extractedMessage);
     }

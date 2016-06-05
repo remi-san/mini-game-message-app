@@ -10,10 +10,11 @@ class MiniGameMessageExtractor
      * Extract the message from the game result.
      *
      * @param GameResult $result
+     * @param string     $languageIso
      * @return string
      */
-    public function extractMessage(GameResult $result)
+    public function extractMessage(GameResult $result, $languageIso)
     {
-        return $result->getAsMessage(); // TODO deal with other languages / remove getAsMessage
+        return $result->getAsMessage(); // TODO retrieve and translate the message / remove getAsMessage
     }
 }
