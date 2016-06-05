@@ -90,41 +90,36 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
 
         $messageContext = $this->getMessageContext($context);
 
-        if ($event instanceof AllPlayersResult) {
+        if ($event instanceof AllPlayersResult) { // TODO message could have multiple targets
             $users = $this->userFinder->getByGameId($event->getGameId());
             foreach ($users as $user) {
-                $this->sendMessage(
-                    $this->extractor->extractMessage($event, $user->getPreferredLanguage()),
-                    $user,
-                    $messageContext
-                );
+                $this->sendMessage($event, $user, $messageContext);
             }
         } else {
             $user = $this->getUser($event->getPlayerId(), $messageContext);
-            $this->sendMessage(
-                $this->extractor->extractMessage(
-                    $event,
-                    ($user) ? $user->getPreferredLanguage() : 'en' // TODO get default language
-                ),
-                $user,
-                $messageContext
-            );
+            $this->sendMessage($event, $user, $messageContext);
         }
     }
 
     /**
-     * @param  string          $text
+     * @param  EventInterface  $event
      * @param  ApplicationUser $user
      * @param  mixed           $messageContext
      * @return void
      */
-    private function sendMessage($text, ApplicationUser $user = null, $messageContext = null)
+    private function sendMessage(EventInterface $event, ApplicationUser $user = null, $messageContext = null)
     {
         if (!$user) {
             return;
         }
 
-        $message = new DefaultMessage($user, $text);
+        $message = new DefaultMessage(
+            $user,
+            $this->extractor->extractMessage(
+                $event,
+                $user->getPreferredLanguage()
+            )
+        );
         $this->messageSender->send($message, $messageContext);
     }
 
