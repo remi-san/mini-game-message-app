@@ -9,6 +9,7 @@ use MessageApp\Message\DefaultMessage;
 use MessageApp\Message\Sender\MessageSender;
 use MessageApp\User\ApplicationUser;
 use MessageApp\User\Finder\ContextUserFinder;
+use MessageApp\User\UndefinedApplicationUser;
 use MiniGame\Entity\PlayerId;
 use MiniGame\GameResult;
 use MiniGame\Result\AllPlayersResult;
@@ -92,7 +93,7 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
         if ($event instanceof AllPlayersResult) {
             $users = $this->userFinder->getByGameId($event->getGameId());
         } else {
-            $users = [$this->getUser($event->getPlayerId(), $messageContext)];
+            $users = [ $this->getUser($event->getPlayerId(), $messageContext) ];
         }
 
         $this->sendMessage($event, $users, $messageContext);
@@ -106,18 +107,42 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
      */
     private function sendMessage(GameResult $gameResult, array $users = array(), $messageContext = null)
     {
-        if (count($users) === 0 || $users[0] === null) {
+        $filteredUsers = self::filterUsers($users);
+
+        if (count($filteredUsers) === 0) {
             return;
         }
 
         $message = new DefaultMessage(
-            $users,
+            $filteredUsers,
             $this->extractor->extractMessage(
                 $gameResult,
-                $users[0]->getPreferredLanguage()
+                self::getLanguage($filteredUsers)
             )
         );
         $this->messageSender->send($message, $messageContext);
+    }
+
+    /**
+     * @param  ApplicationUser[] $users
+     * @return ApplicationUser[]
+     */
+    private static function filterUsers(array $users)
+    {
+        return array_unique(
+            array_filter($users, function (ApplicationUser $user = null) {
+                return $user !== null && !$user instanceof UndefinedApplicationUser;
+            })
+        );
+    }
+
+    /**
+     * @param  ApplicationUser[] $users
+     * @return string
+     */
+    private static function getLanguage(array $users)
+    {
+        return $users[0]->getPreferredLanguage(); // TODO add better language management
     }
 
     /**
