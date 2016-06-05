@@ -162,7 +162,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             ->with(
                 \Mockery::on(function ($message) use ($user, $messageText) {
                     return $message instanceof Message\DefaultMessage &&
-                        $message->getUser() == $user &&
+                        $message->getUsers() == [$user] &&
                         $message->getMessage() == $messageText;
                 }),
                 null
@@ -226,7 +226,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             ->with(
                 \Mockery::on(function ($message) use ($user, $messageText) {
                     return $message instanceof Message\DefaultMessage &&
-                    $message->getUser() == $user &&
+                    $message->getUsers() == [$user] &&
                     $message->getMessage() == $messageText;
                 }),
                 'sourceMessage'
@@ -334,7 +334,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             ->with(
                 \Mockery::on(function ($message) use ($user, $messageText) {
                     return $message instanceof Message\DefaultMessage &&
-                    $message->getUser() == $user &&
+                    $message->getUsers() == [$user] &&
                     $message->getMessage() == $messageText;
                 }),
                 null
