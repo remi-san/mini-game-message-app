@@ -12,6 +12,7 @@ use MessageApp\User\Finder\ContextUserFinder;
 use MiniGame\Entity\PlayerId;
 use MiniGame\GameResult;
 use MiniGame\Result\AllPlayersResult;
+use MiniGameMessageApp\Message\MiniGameMessageExtractor;
 use MiniGameMessageApp\ReadModel\Finder\MiniGameUserFinder;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -43,23 +44,31 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
     private $messageSender;
 
     /**
+     * @var MiniGameMessageExtractor
+     */
+    private $extractor;
+
+    /**
      * Constructor
      *
-     * @param MiniGameUserFinder $userFinder
-     * @param ContextUserFinder  $contextUserFinder
-     * @param MessageFinder      $messageFinder
-     * @param MessageSender      $messageSender
+     * @param MiniGameUserFinder       $userFinder
+     * @param ContextUserFinder        $contextUserFinder
+     * @param MessageFinder            $messageFinder
+     * @param MessageSender            $messageSender
+     * @param MiniGameMessageExtractor $extractor
      */
     public function __construct(
         MiniGameUserFinder $userFinder,
         ContextUserFinder $contextUserFinder,
         MessageFinder $messageFinder,
-        MessageSender $messageSender
+        MessageSender $messageSender,
+        MiniGameMessageExtractor $extractor
     ) {
         $this->userFinder = $userFinder;
         $this->contextUserFinder = $contextUserFinder;
         $this->messageFinder = $messageFinder;
         $this->messageSender = $messageSender;
+        $this->extractor = $extractor;
         $this->logger = new NullLogger();
     }
 
@@ -79,7 +88,7 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
 
         $this->logger->info(sprintf('Send message after "%s"', $event->getName()));
 
-        $text = $event->getAsMessage(); // deal with other languages / remove getAsMessage
+        $text = $this->extractor->extractMessage($event);
 
         $messageContext = $this->getMessageContext($context);
 

@@ -16,7 +16,8 @@
     "require": {
         "remi-san/mini-game": "^0.1@dev",
         "remi-san/mini-game-app": "^0.1@dev",
-        "remi-san/message-app": "^0.1@dev"
+        "remi-san/message-app": "^0.1@dev",
+        "remi-san/intl" : "^0.1@dev"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.5",

@@ -11,6 +11,7 @@ use MessageApp\User\Finder\ContextUserFinder;
 use MiniGame\Result\AllPlayersResult;
 use MiniGame\Test\Mock\GameObjectMocker;
 use MiniGameMessageApp\Handler\GameResultHandler;
+use MiniGameMessageApp\Message\MiniGameMessageExtractor;
 use MiniGameMessageApp\ReadModel\Finder\MiniGameUserFinder;
 use MiniGameMessageApp\Test\Mock\AllResultEvent;
 use Psr\Log\LoggerInterface;
@@ -42,6 +43,11 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
     private $messageSender;
 
     /**
+     * @var MiniGameMessageExtractor
+     */
+    private $extractor;
+
+    /**
      * @var LoggerInterface
      */
     protected $logger;
@@ -58,6 +64,8 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
         $this->messageFinder = \Mockery::mock(MessageFinder::class);
 
         $this->messageSender = $this->getMessageSender();
+
+        $this->extractor = \Mockery::mock(MiniGameMessageExtractor::class);
 
         $this->logger = \Mockery::mock('\\Psr\\Log\\LoggerInterface');
     }
@@ -76,7 +84,8 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             $this->userFinder,
             $this->contextUserFinder,
             $this->messageFinder,
-            $this->messageSender
+            $this->messageSender,
+            $this->extractor
         );
 
         $listener->setLogger($this->logger);
@@ -98,7 +107,8 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             $this->userFinder,
             $this->contextUserFinder,
             $this->messageFinder,
-            $this->messageSender
+            $this->messageSender,
+            $this->extractor
         );
 
         $listener->setLogger($this->logger);
@@ -110,9 +120,13 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
 
         $event = \Mockery::mock(GameResultEvent::class, function ($event) {
             $event->shouldReceive('getPlayerId')->andReturn(null);
-            $event->shouldReceive('getAsMessage')->andReturn(null);
             $event->shouldReceive('getName')->andReturn('name');
         });
+        $this->extractor
+            ->shouldReceive('extractMessage')
+            ->with($event)
+            ->andReturn(null);
+
         $listener->handle($event);
     }
 
@@ -129,7 +143,8 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             $this->userFinder,
             $this->contextUserFinder,
             $this->messageFinder,
-            $this->messageSender
+            $this->messageSender,
+            $this->extractor
         );
 
         $listener->setLogger($this->logger);
@@ -155,9 +170,13 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
 
         $event = \Mockery::mock(GameResultEvent::class, function ($event) use ($playerId, $messageText) {
             $event->shouldReceive('getPlayerId')->andReturn($playerId);
-            $event->shouldReceive('getAsMessage')->andReturn($messageText);
             $event->shouldReceive('getName')->andReturn('name');
         });
+        $this->extractor
+            ->shouldReceive('extractMessage')
+            ->with($event)
+            ->andReturn($messageText);
+
         $listener->handle($event);
     }
 
@@ -182,7 +201,8 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             $this->userFinder,
             $this->contextUserFinder,
             $this->messageFinder,
-            $this->messageSender
+            $this->messageSender,
+            $this->extractor
         );
 
         $listener->setLogger($this->logger);
@@ -213,9 +233,13 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
 
         $event = \Mockery::mock(GameResultEvent::class, function ($event) use ($playerId, $messageText) {
             $event->shouldReceive('getPlayerId')->andReturn(null);
-            $event->shouldReceive('getAsMessage')->andReturn($messageText);
             $event->shouldReceive('getName')->andReturn('name');
         });
+        $this->extractor
+            ->shouldReceive('extractMessage')
+            ->with($event)
+            ->andReturn($messageText);
+
         $listener->handle($event, $context);
     }
 
@@ -239,7 +263,8 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             $this->userFinder,
             $this->contextUserFinder,
             $this->messageFinder,
-            $this->messageSender
+            $this->messageSender,
+            $this->extractor
         );
 
         $listener->setLogger($this->logger);
@@ -263,9 +288,12 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
 
         $event = \Mockery::mock(GameResultEvent::class, function ($event) use ($playerId, $messageText) {
             $event->shouldReceive('getPlayerId')->andReturn($playerId);
-            $event->shouldReceive('getAsMessage')->andReturn($messageText);
             $event->shouldReceive('getName')->andReturn('name');
         });
+        $this->extractor
+            ->shouldReceive('extractMessage')
+            ->with($event)
+            ->andReturn($messageText);
 
         $this->setExpectedException(\InvalidArgumentException::class);
 
@@ -285,7 +313,8 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             $this->userFinder,
             $this->contextUserFinder,
             $this->messageFinder,
-            $this->messageSender
+            $this->messageSender,
+            $this->extractor
         );
 
         $listener->setLogger($this->logger);
@@ -311,9 +340,13 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
 
         $event = \Mockery::mock(AllResultEvent::class, function ($event) use ($gameId, $messageText) {
             $event->shouldReceive('getGameId')->andReturn($gameId);
-            $event->shouldReceive('getAsMessage')->andReturn($messageText);
             $event->shouldReceive('getName')->andReturn('name');
         });
+        $this->extractor
+            ->shouldReceive('extractMessage')
+            ->with($event)
+            ->andReturn($messageText);
+
         $listener->handle($event);
     }
 }
