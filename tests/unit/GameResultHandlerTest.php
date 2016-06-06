@@ -11,7 +11,7 @@ use MessageApp\User\Finder\ContextUserFinder;
 use MiniGame\Result\AllPlayersResult;
 use MiniGame\Test\Mock\GameObjectMocker;
 use MiniGameMessageApp\Handler\GameResultHandler;
-use MiniGameMessageApp\Message\MiniGameMessageExtractor;
+use MiniGameMessageApp\Message\MessageFactory;
 use MiniGameMessageApp\ReadModel\Finder\MiniGameUserFinder;
 use MiniGameMessageApp\Test\Mock\AllResultEvent;
 use Psr\Log\LoggerInterface;
@@ -43,9 +43,9 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
     private $messageSender;
 
     /**
-     * @var MiniGameMessageExtractor
+     * @var MessageFactory
      */
-    private $extractor;
+    private $factory;
 
     /**
      * @var LoggerInterface
@@ -65,7 +65,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
 
         $this->messageSender = $this->getMessageSender();
 
-        $this->extractor = \Mockery::mock(MiniGameMessageExtractor::class);
+        $this->factory = \Mockery::mock(MessageFactory::class);
 
         $this->logger = \Mockery::mock('\\Psr\\Log\\LoggerInterface');
     }
@@ -85,7 +85,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             $this->contextUserFinder,
             $this->messageFinder,
             $this->messageSender,
-            $this->extractor
+            $this->factory
         );
 
         $listener->setLogger($this->logger);
@@ -108,7 +108,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             $this->contextUserFinder,
             $this->messageFinder,
             $this->messageSender,
-            $this->extractor
+            $this->factory
         );
 
         $listener->setLogger($this->logger);
@@ -122,9 +122,9 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             $event->shouldReceive('getPlayerId')->andReturn(null);
             $event->shouldReceive('getName')->andReturn('name');
         });
-        $this->extractor
-            ->shouldReceive('extractMessage')
-            ->with($event, 'en')
+        $this->factory
+            ->shouldReceive('buildMessage')
+            ->with([null], $event)
             ->andReturn(null);
 
         $listener->handle($event);
@@ -138,14 +138,14 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
         $playerId = $this->getPlayerId(42);
         $user = $this->getApplicationUser($this->getApplicationUserId(33), 'Douglas');
         $user->shouldReceive('getPreferredLanguage')->andReturn('fr');
-        $messageText = 'toto';
+        $message = \Mockery::mock(Message::class);
 
         $listener = new GameResultHandler(
             $this->userFinder,
             $this->contextUserFinder,
             $this->messageFinder,
             $this->messageSender,
-            $this->extractor
+            $this->factory
         );
 
         $listener->setLogger($this->logger);
@@ -159,24 +159,17 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
 
         $this->messageSender
             ->shouldReceive('send')
-            ->with(
-                \Mockery::on(function ($message) use ($user, $messageText) {
-                    return $message instanceof Message\DefaultMessage &&
-                        $message->getUsers() == [$user] &&
-                        $message->getMessage() == $messageText;
-                }),
-                null
-            )
+            ->with($message, null)
             ->once();
 
-        $event = \Mockery::mock(GameResultEvent::class, function ($event) use ($playerId, $messageText) {
+        $event = \Mockery::mock(GameResultEvent::class, function ($event) use ($playerId) {
             $event->shouldReceive('getPlayerId')->andReturn($playerId);
             $event->shouldReceive('getName')->andReturn('name');
         });
-        $this->extractor
-            ->shouldReceive('extractMessage')
-            ->with($event, 'fr')
-            ->andReturn($messageText);
+        $this->factory
+            ->shouldReceive('buildMessage')
+            ->with([$user], $event)
+            ->andReturn($message);
 
         $listener->handle($event);
     }
@@ -189,7 +182,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
         $playerId = $this->getPlayerId(42);
         $user = $this->getApplicationUser($this->getApplicationUserId(33), 'Douglas');
         $user->shouldReceive('getPreferredLanguage')->andReturn('fr');
-        $messageText = 'toto';
+        $message = \Mockery::mock(Message::class);
 
         $contextMessage = \Mockery::mock(SourceMessage::class, function ($sm) {
             $sm->shouldReceive('getSource')->andReturn('sourceMessage');
@@ -204,7 +197,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             $this->contextUserFinder,
             $this->messageFinder,
             $this->messageSender,
-            $this->extractor
+            $this->factory
         );
 
         $listener->setLogger($this->logger);
@@ -223,24 +216,17 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
 
         $this->messageSender
             ->shouldReceive('send')
-            ->with(
-                \Mockery::on(function ($message) use ($user, $messageText) {
-                    return $message instanceof Message\DefaultMessage &&
-                    $message->getUsers() == [$user] &&
-                    $message->getMessage() == $messageText;
-                }),
-                'sourceMessage'
-            )
+            ->with($message, 'sourceMessage')
             ->once();
 
-        $event = \Mockery::mock(GameResultEvent::class, function ($event) use ($playerId, $messageText) {
+        $event = \Mockery::mock(GameResultEvent::class, function ($event) use ($playerId) {
             $event->shouldReceive('getPlayerId')->andReturn(null);
             $event->shouldReceive('getName')->andReturn('name');
         });
-        $this->extractor
-            ->shouldReceive('extractMessage')
-            ->with($event, 'fr')
-            ->andReturn($messageText);
+        $this->factory
+            ->shouldReceive('buildMessage')
+            ->with([$user], $event)
+            ->andReturn($message);
 
         $listener->handle($event, $context);
     }
@@ -251,7 +237,6 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
     public function testCompleteEventWithContextAndNotFoundUser()
     {
         $playerId = $this->getPlayerId(42);
-        $messageText = 'toto';
 
         $contextMessage = \Mockery::mock(SourceMessage::class, function ($sm) {
             $sm->shouldReceive('getSource')->andReturn('sourceMessage');
@@ -266,7 +251,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             $this->contextUserFinder,
             $this->messageFinder,
             $this->messageSender,
-            $this->extractor
+            $this->factory
         );
 
         $listener->setLogger($this->logger);
@@ -288,14 +273,10 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             ->with($playerId)
             ->andReturn(null);
 
-        $event = \Mockery::mock(GameResultEvent::class, function ($event) use ($playerId, $messageText) {
+        $event = \Mockery::mock(GameResultEvent::class, function ($event) use ($playerId) {
             $event->shouldReceive('getPlayerId')->andReturn($playerId);
             $event->shouldReceive('getName')->andReturn('name');
         });
-        $this->extractor
-            ->shouldReceive('extractMessage')
-            ->with($event, 'en')
-            ->andReturn($messageText);
 
         $this->setExpectedException(\InvalidArgumentException::class);
 
@@ -310,14 +291,14 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
         $gameId = $this->getMiniGameId(42);
         $user = $this->getApplicationUser($this->getApplicationUserId(33), 'Douglas');
         $user->shouldReceive('getPreferredLanguage')->andReturn('fr');
-        $messageText = 'toto';
+        $message = \Mockery::mock(Message::class);
 
         $listener = new GameResultHandler(
             $this->userFinder,
             $this->contextUserFinder,
             $this->messageFinder,
             $this->messageSender,
-            $this->extractor
+            $this->factory
         );
 
         $listener->setLogger($this->logger);
@@ -331,24 +312,18 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
 
         $this->messageSender
             ->shouldReceive('send')
-            ->with(
-                \Mockery::on(function ($message) use ($user, $messageText) {
-                    return $message instanceof Message\DefaultMessage &&
-                    $message->getUsers() == [$user] &&
-                    $message->getMessage() == $messageText;
-                }),
-                null
-            )
+            ->with($message, null)
             ->once();
 
-        $event = \Mockery::mock(AllResultEvent::class, function ($event) use ($gameId, $messageText) {
+        $event = \Mockery::mock(AllResultEvent::class, function ($event) use ($gameId) {
             $event->shouldReceive('getGameId')->andReturn($gameId);
             $event->shouldReceive('getName')->andReturn('name');
         });
-        $this->extractor
-            ->shouldReceive('extractMessage')
-            ->with($event, 'fr')
-            ->andReturn($messageText);
+
+        $this->factory
+            ->shouldReceive('buildMessage')
+            ->with([$user], $event)
+            ->andReturn($message);
 
         $listener->handle($event);
     }

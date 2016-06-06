@@ -13,7 +13,8 @@ use MessageApp\User\UndefinedApplicationUser;
 use MiniGame\Entity\PlayerId;
 use MiniGame\GameResult;
 use MiniGame\Result\AllPlayersResult;
-use MiniGameMessageApp\Message\MiniGameMessageExtractor;
+use MiniGameMessageApp\Message\MessageFactory;
+use MiniGameMessageApp\Message\MessageTextExtractor;
 use MiniGameMessageApp\ReadModel\Finder\MiniGameUserFinder;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -45,31 +46,31 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
     private $messageSender;
 
     /**
-     * @var MiniGameMessageExtractor
+     * @var MessageFactory
      */
-    private $extractor;
+    private $messageFactory;
 
     /**
      * Constructor
      *
-     * @param MiniGameUserFinder       $userFinder
-     * @param ContextUserFinder        $contextUserFinder
-     * @param MessageFinder            $messageFinder
-     * @param MessageSender            $messageSender
-     * @param MiniGameMessageExtractor $extractor
+     * @param MiniGameUserFinder $userFinder
+     * @param ContextUserFinder  $contextUserFinder
+     * @param MessageFinder      $messageFinder
+     * @param MessageSender      $messageSender
+     * @param MessageFactory     $messageFactory
      */
     public function __construct(
         MiniGameUserFinder $userFinder,
         ContextUserFinder $contextUserFinder,
         MessageFinder $messageFinder,
         MessageSender $messageSender,
-        MiniGameMessageExtractor $extractor
+        MessageFactory $messageFactory
     ) {
         $this->userFinder = $userFinder;
         $this->contextUserFinder = $contextUserFinder;
         $this->messageFinder = $messageFinder;
         $this->messageSender = $messageSender;
-        $this->extractor = $extractor;
+        $this->messageFactory = $messageFactory;
         $this->logger = new NullLogger();
     }
 
@@ -107,42 +108,13 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
      */
     private function sendMessage(GameResult $gameResult, array $users = array(), $messageContext = null)
     {
-        $filteredUsers = self::filterUsers($users);
+        $message = $this->messageFactory->buildMessage($users, $gameResult);
 
-        if (count($filteredUsers) === 0) {
+        if (!$message) {
             return;
         }
 
-        $message = new DefaultMessage(
-            $filteredUsers,
-            $this->extractor->extractMessage(
-                $gameResult,
-                self::getLanguage($filteredUsers)
-            )
-        );
         $this->messageSender->send($message, $messageContext);
-    }
-
-    /**
-     * @param  ApplicationUser[] $users
-     * @return ApplicationUser[]
-     */
-    private static function filterUsers(array $users)
-    {
-        return array_unique(
-            array_filter($users, function (ApplicationUser $user = null) {
-                return $user !== null && !$user instanceof UndefinedApplicationUser;
-            })
-        );
-    }
-
-    /**
-     * @param  ApplicationUser[] $users
-     * @return string
-     */
-    private static function getLanguage(array $users)
-    {
-        return $users[0]->getPreferredLanguage(); // TODO add better language management
     }
 
     /**
