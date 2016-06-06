@@ -5,16 +5,13 @@ namespace MiniGameMessageApp\Handler;
 use League\Event\EventInterface;
 use MessageApp\Finder\MessageFinder;
 use MessageApp\Listener\MessageEventHandler;
-use MessageApp\Message\DefaultMessage;
+use MessageApp\Message\MessageFactory;
 use MessageApp\Message\Sender\MessageSender;
 use MessageApp\User\ApplicationUser;
 use MessageApp\User\Finder\ContextUserFinder;
-use MessageApp\User\UndefinedApplicationUser;
 use MiniGame\Entity\PlayerId;
 use MiniGame\GameResult;
 use MiniGame\Result\AllPlayersResult;
-use MiniGameMessageApp\Message\MessageFactory;
-use MiniGameMessageApp\Message\MessageTextExtractor;
 use MiniGameMessageApp\ReadModel\Finder\MiniGameUserFinder;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -46,7 +43,7 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
     private $messageSender;
 
     /**
-     * @var MessageFactory
+     * @var \MessageApp\Message\MessageFactory
      */
     private $messageFactory;
 
@@ -106,7 +103,7 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
      * @param  mixed             $messageContext
      * @return void
      */
-    private function sendMessage(GameResult $gameResult, array $users = array(), $messageContext = null)
+    private function sendMessage(GameResult $gameResult, array $users = [], $messageContext = null)
     {
         $message = $this->messageFactory->buildMessage($users, $gameResult);
 

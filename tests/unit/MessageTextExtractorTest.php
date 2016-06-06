@@ -7,7 +7,7 @@ use MessageApp\Event\UserEvent;
 use MessageApp\Parser\Exception\MessageParserException;
 use MessageApp\User\ApplicationUser;
 use MiniGame\GameResult;
-use MiniGameMessageApp\Message\MessageTextExtractor;
+use MiniGameMessageApp\Message\MiniGameMessageTextExtractor;
 
 class MessageTextExtractorTest extends \PHPUnit_Framework_TestCase
 {
@@ -30,7 +30,7 @@ class MessageTextExtractorTest extends \PHPUnit_Framework_TestCase
             $result->shouldReceive('getAsMessage')->andReturn($message)->once();
         });
 
-        $extractor = new MessageTextExtractor();
+        $extractor = new MiniGameMessageTextExtractor();
 
         $extractedMessage = $extractor->extractMessage($gameResult, 'en');
 
@@ -47,7 +47,7 @@ class MessageTextExtractorTest extends \PHPUnit_Framework_TestCase
             $event->shouldReceive('getReason')->andReturn($message)->once();
         });
 
-        $extractor = new MessageTextExtractor();
+        $extractor = new MiniGameMessageTextExtractor();
 
         $extractedMessage = $extractor->extractMessage($event, 'en');
 
@@ -64,7 +64,7 @@ class MessageTextExtractorTest extends \PHPUnit_Framework_TestCase
             $event->shouldReceive('getAsMessage')->andReturn($message)->once();
         });
 
-        $extractor = new MessageTextExtractor();
+        $extractor = new MiniGameMessageTextExtractor();
 
         $extractedMessage = $extractor->extractMessage($event, 'en');
 
@@ -79,7 +79,7 @@ class MessageTextExtractorTest extends \PHPUnit_Framework_TestCase
         $message = 'test-message';
         $e = new MessageParserException(\Mockery::mock(ApplicationUser::class), $message);
 
-        $extractor = new MessageTextExtractor();
+        $extractor = new MiniGameMessageTextExtractor();
 
         $extractedMessage = $extractor->extractMessage($e, 'en');
 
@@ -91,7 +91,7 @@ class MessageTextExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testWithUnknownObject()
     {
-        $extractor = new MessageTextExtractor();
+        $extractor = new MiniGameMessageTextExtractor();
 
         $extractedMessage = $extractor->extractMessage(null, 'en');
 

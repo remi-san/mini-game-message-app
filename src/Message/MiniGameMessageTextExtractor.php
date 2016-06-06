@@ -4,10 +4,11 @@ namespace MiniGameMessageApp\Message;
 
 use MessageApp\Event\UnableToCreateUserEvent;
 use MessageApp\Event\UserEvent;
+use MessageApp\Message\MessageTextExtractor;
 use MessageApp\Parser\Exception\MessageParserException;
 use MiniGame\GameResult;
 
-class MessageTextExtractor
+class MiniGameMessageTextExtractor implements MessageTextExtractor
 {
     /**
      * Extract the message from the game result.

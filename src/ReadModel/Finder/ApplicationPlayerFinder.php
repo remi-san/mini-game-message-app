@@ -32,9 +32,9 @@ interface ApplicationPlayerFinder
      * @param  ApplicationUserId $userId
      * @param  string            $gameType
      *
+     * @throws UnsupportedGameTypeException
      * @return Player The player.
      *
-     * @throws UnsupportedGameTypeException
      */
     public function getActivePlayerForUserAndGameType(ApplicationUserId $userId, $gameType);
 

@@ -4,18 +4,17 @@ namespace MiniGameMessageApp\Test;
 use League\Event\EventInterface;
 use MessageApp\Finder\MessageFinder;
 use MessageApp\Message;
+use MessageApp\Message\MessageFactory;
 use MessageApp\Message\Sender\MessageSender;
 use MessageApp\SourceMessage;
 use MessageApp\Test\Mock\MessageAppMocker;
 use MessageApp\User\Finder\ContextUserFinder;
-use MiniGame\Result\AllPlayersResult;
 use MiniGame\Test\Mock\GameObjectMocker;
 use MiniGameMessageApp\Handler\GameResultHandler;
-use MiniGameMessageApp\Message\MessageFactory;
 use MiniGameMessageApp\ReadModel\Finder\MiniGameUserFinder;
 use MiniGameMessageApp\Test\Mock\AllResultEvent;
-use Psr\Log\LoggerInterface;
 use MiniGameMessageApp\Test\Mock\GameResultEvent;
+use Psr\Log\LoggerInterface;
 use RemiSan\Context\Context;
 
 class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
