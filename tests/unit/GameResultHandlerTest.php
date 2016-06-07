@@ -113,6 +113,7 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
         $listener->setLogger($this->logger);
         $this->logger->shouldReceive('info');
         $this->logger->shouldReceive('debug');
+        $this->logger->shouldReceive('warning');
 
         $this->userFinder->shouldReceive('getByPlayerId')->never();
         $this->messageSender->shouldReceive('send')->never();

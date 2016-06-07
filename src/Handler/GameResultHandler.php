@@ -108,6 +108,7 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
         $message = $this->messageFactory->buildMessage($users, $gameResult);
 
         if (!$message) {
+            $this->logger->warning('Message could not be generated');
             return;
         }
 
