@@ -83,8 +83,8 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             $this->userFinder,
             $this->contextUserFinder,
             $this->messageFinder,
-            $this->messageSender,
-            $this->factory
+            $this->factory,
+            $this->messageSender
         );
 
         $listener->setLogger($this->logger);
@@ -106,8 +106,8 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             $this->userFinder,
             $this->contextUserFinder,
             $this->messageFinder,
-            $this->messageSender,
-            $this->factory
+            $this->factory,
+            $this->messageSender
         );
 
         $listener->setLogger($this->logger);
@@ -144,8 +144,8 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             $this->userFinder,
             $this->contextUserFinder,
             $this->messageFinder,
-            $this->messageSender,
-            $this->factory
+            $this->factory,
+            $this->messageSender
         );
 
         $listener->setLogger($this->logger);
@@ -196,8 +196,8 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             $this->userFinder,
             $this->contextUserFinder,
             $this->messageFinder,
-            $this->messageSender,
-            $this->factory
+            $this->factory,
+            $this->messageSender
         );
 
         $listener->setLogger($this->logger);
@@ -250,8 +250,8 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             $this->userFinder,
             $this->contextUserFinder,
             $this->messageFinder,
-            $this->messageSender,
-            $this->factory
+            $this->factory,
+            $this->messageSender
         );
 
         $listener->setLogger($this->logger);
@@ -297,8 +297,8 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
             $this->userFinder,
             $this->contextUserFinder,
             $this->messageFinder,
-            $this->messageSender,
-            $this->factory
+            $this->factory,
+            $this->messageSender
         );
 
         $listener->setLogger($this->logger);

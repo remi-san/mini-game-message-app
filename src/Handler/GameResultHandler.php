@@ -38,14 +38,14 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
     private $messageFinder;
 
     /**
+     * @var MessageFactory
+     */
+    private $messageFactory;
+
+    /**
      * @var MessageSender
      */
     private $messageSender;
-
-    /**
-     * @var \MessageApp\Message\MessageFactory
-     */
-    private $messageFactory;
 
     /**
      * Constructor
@@ -53,21 +53,21 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
      * @param MiniGameUserFinder $userFinder
      * @param ContextUserFinder  $contextUserFinder
      * @param MessageFinder      $messageFinder
-     * @param MessageSender      $messageSender
      * @param MessageFactory     $messageFactory
+     * @param MessageSender      $messageSender
      */
     public function __construct(
         MiniGameUserFinder $userFinder,
         ContextUserFinder $contextUserFinder,
         MessageFinder $messageFinder,
-        MessageSender $messageSender,
-        MessageFactory $messageFactory
+        MessageFactory $messageFactory,
+        MessageSender $messageSender
     ) {
         $this->userFinder = $userFinder;
         $this->contextUserFinder = $contextUserFinder;
         $this->messageFinder = $messageFinder;
-        $this->messageSender = $messageSender;
         $this->messageFactory = $messageFactory;
+        $this->messageSender = $messageSender;
         $this->logger = new NullLogger();
     }
 
