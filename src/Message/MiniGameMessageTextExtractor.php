@@ -4,7 +4,7 @@ namespace MiniGameMessageApp\Message;
 
 use MessageApp\Event\UnableToCreateUserEvent;
 use MessageApp\Event\UserEvent;
-use MessageApp\Message\MessageTextExtractor;
+use MessageApp\Message\TextExtractor\MessageTextExtractor;
 use MessageApp\Parser\Exception\MessageParserException;
 use MiniGame\GameResult;
 
