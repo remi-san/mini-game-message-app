@@ -4,10 +4,11 @@ namespace MiniGameMessageApp\Test;
 
 use MessageApp\Event\UnableToCreateUserEvent;
 use MessageApp\Event\UserEvent;
+use MessageApp\Message\TextExtractor\MessageTextExtractor;
 use MessageApp\Parser\Exception\MessageParserException;
 use MessageApp\User\ApplicationUser;
 use MiniGame\GameResult;
-use MiniGameMessageApp\Message\MiniGameMessageTextExtractor;
+use MiniGameMessageApp\Message\GameResultTextExtractor;
 
 class MessageTextExtractorTest extends \PHPUnit_Framework_TestCase
 {
@@ -26,13 +27,18 @@ class MessageTextExtractorTest extends \PHPUnit_Framework_TestCase
     public function testWithGameResult()
     {
         $message = 'test-message';
-        $gameResult = \Mockery::mock(GameResult::class, function ($result) use ($message) {
-            $result->shouldReceive('getAsMessage')->andReturn($message)->once();
+        $lang = 'en';
+        $gameResult = \Mockery::mock(GameResult::class);
+        $extractor = \Mockery::mock(MessageTextExtractor::class, function ($result) use ($message, $gameResult, $lang) {
+            $result->shouldReceive('extractMessage')
+                ->with($gameResult, $lang)
+                ->andReturn($message)
+                ->once();
         });
 
-        $extractor = new MiniGameMessageTextExtractor();
+        $extractor = new GameResultTextExtractor([$extractor]);
 
-        $extractedMessage = $extractor->extractMessage($gameResult, 'en');
+        $extractedMessage = $extractor->extractMessage($gameResult, $lang);
 
         $this->assertEquals($message, $extractedMessage);
     }
@@ -40,9 +46,22 @@ class MessageTextExtractorTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function testWithUnmanagedGameResult()
+    {
+        $gameResult = \Mockery::mock(GameResult::class);
+
+        $extractor = new GameResultTextExtractor([]);
+
+        $this->setExpectedException(\InvalidArgumentException::class);
+        $extractor->extractMessage($gameResult, 'en');
+    }
+
+    /**
+     * @test
+     */
     public function testWithUnknownObject()
     {
-        $extractor = new MiniGameMessageTextExtractor();
+        $extractor = new GameResultTextExtractor();
 
         $extractedMessage = $extractor->extractMessage(null, 'en');
 
