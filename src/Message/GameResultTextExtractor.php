@@ -4,6 +4,7 @@ namespace MiniGameMessageApp\Message;
 
 use MessageApp\Message\TextExtractor\MessageTextExtractor;
 use MiniGame\GameResult;
+use RemiSan\Intl\TranslatableResource;
 
 class GameResultTextExtractor implements MessageTextExtractor
 {
@@ -27,7 +28,7 @@ class GameResultTextExtractor implements MessageTextExtractor
      *
      * @param  object $object
      * @param  string $languageIso
-     * @return string
+     * @return TranslatableResource
      */
     public function extractMessage($object, $languageIso)
     {
