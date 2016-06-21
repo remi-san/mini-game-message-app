@@ -27,18 +27,17 @@ class MessageTextExtractorTest extends \PHPUnit_Framework_TestCase
     public function testWithGameResult()
     {
         $message = 'test-message';
-        $lang = 'en';
         $gameResult = \Mockery::mock(GameResult::class);
-        $extractor = \Mockery::mock(MessageTextExtractor::class, function ($result) use ($message, $gameResult, $lang) {
+        $extractor = \Mockery::mock(MessageTextExtractor::class, function ($result) use ($message, $gameResult) {
             $result->shouldReceive('extractMessage')
-                ->with($gameResult, $lang)
+                ->with($gameResult)
                 ->andReturn($message)
                 ->once();
         });
 
         $extractor = new GameResultTextExtractor([$extractor]);
 
-        $extractedMessage = $extractor->extractMessage($gameResult, $lang);
+        $extractedMessage = $extractor->extractMessage($gameResult);
 
         $this->assertEquals($message, $extractedMessage);
     }
@@ -53,7 +52,7 @@ class MessageTextExtractorTest extends \PHPUnit_Framework_TestCase
         $extractor = new GameResultTextExtractor([]);
 
         $this->setExpectedException(\InvalidArgumentException::class);
-        $extractor->extractMessage($gameResult, 'en');
+        $extractor->extractMessage($gameResult);
     }
 
     /**
@@ -63,7 +62,7 @@ class MessageTextExtractorTest extends \PHPUnit_Framework_TestCase
     {
         $extractor = new GameResultTextExtractor();
 
-        $extractedMessage = $extractor->extractMessage(null, 'en');
+        $extractedMessage = $extractor->extractMessage(null);
 
         $this->assertNull($extractedMessage);
     }
