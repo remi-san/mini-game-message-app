@@ -3,11 +3,10 @@
 namespace MiniGameMessageApp\ReadModel\Finder;
 
 use MessageApp\User\ApplicationUser;
-use MessageApp\User\Finder\AppUserFinder;
 use MiniGame\Entity\MiniGameId;
 use MiniGame\Entity\PlayerId;
 
-interface MiniGameUserFinder extends AppUserFinder
+interface MiniGameUserFinder
 {
     /**
      * Gets a user by a player id
