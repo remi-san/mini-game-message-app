@@ -12,7 +12,7 @@ use MessageApp\User\Finder\ContextUserFinder;
 use MiniGame\Entity\PlayerId;
 use MiniGame\GameResult;
 use MiniGame\Result\AllPlayersResult;
-use MiniGameMessageApp\ReadModel\Finder\MiniGameUserFinder;
+use MiniGameMessageApp\Finder\MiniGameUserFinder;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;

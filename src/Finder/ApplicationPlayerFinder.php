@@ -1,6 +1,6 @@
 <?php
 
-namespace MiniGameMessageApp\ReadModel\Finder;
+namespace MiniGameMessageApp\Finder;
 
 use MessageApp\User\ApplicationUserId;
 use MiniGame\Entity\PlayerId;
