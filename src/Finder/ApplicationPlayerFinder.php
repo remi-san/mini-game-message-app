@@ -16,15 +16,6 @@ interface ApplicationPlayerFinder
     public function find($id);
 
     /**
-     * Gets the active player for the user
-     *
-     * @param  ApplicationUserId $userId
-     *
-     * @return Player The player.
-     */
-    public function getActivePlayerForUser(ApplicationUserId $userId);
-
-    /**
      * @param  Player $player
      *
      * @return void
