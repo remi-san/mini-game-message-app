@@ -2,7 +2,6 @@
 
 namespace MiniGameMessageApp\Finder;
 
-use MessageApp\User\ApplicationUserId;
 use MiniGame\Entity\PlayerId;
 use MiniGameApp\ReadModel\Player;
 
