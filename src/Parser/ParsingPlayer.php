@@ -10,7 +10,7 @@ interface ParsingPlayer
     /**
      * @return PlayerId
      */
-    public function getId();
+    public function getPlayerId();
 
     /**
      * @return MiniGameId

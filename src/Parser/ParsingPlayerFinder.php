@@ -4,7 +4,7 @@ namespace MiniGameMessageApp\Parser;
 
 use MessageApp\User\ApplicationUserId;
 
-interface PlayerFinder
+interface ParsingPlayerFinder
 {
     /**
      * Gets the active player for the user
@@ -14,4 +14,13 @@ interface PlayerFinder
      * @return ParsingPlayer
      */
     public function getActivePlayerForUser(ApplicationUserId $userId);
+
+    /**
+     * Register the parsing player.
+     *
+     * @param ParsingPlayer $player
+     *
+     * @return void
+     */
+    public function register(ParsingPlayer $player);
 }

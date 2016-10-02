@@ -11,9 +11,9 @@ interface ParsingPlayerFactory
     /**
      * @param PlayerId          $playerId
      * @param MiniGameId        $gameId
-     * @param ApplicationUserId $getId
+     * @param ApplicationUserId $userId
      *
      * @return ParsingPlayer
      */
-    public function createParsingPlayer(PlayerId $playerId, MiniGameId $gameId, ApplicationUserId $getId);
+    public function createParsingPlayer(PlayerId $playerId, MiniGameId $gameId, ApplicationUserId $userId);
 }
