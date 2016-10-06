@@ -3,6 +3,8 @@
 namespace MiniGameMessageApp\Parser;
 
 use MessageApp\User\ApplicationUserId;
+use MiniGame\Entity\MiniGameId;
+use MiniGame\Entity\PlayerId;
 
 interface ParsingPlayerFinder
 {
@@ -23,4 +25,18 @@ interface ParsingPlayerFinder
      * @return void
      */
     public function register(ParsingPlayer $player);
+
+    /**
+     * Delete the parsing player.
+     *
+     * @param PlayerId $playerId
+     */
+    public function delete(PlayerId $playerId);
+
+    /**
+     * Delete parsing players by game id.
+     *
+     * @param MiniGameId $gameId
+     */
+    public function deleteByGame(MiniGameId $gameId);
 }
