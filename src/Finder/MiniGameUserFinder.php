@@ -2,18 +2,33 @@
 
 namespace MiniGameMessageApp\Finder;
 
-use MessageApp\User\ApplicationUser;
 use MiniGame\Entity\MiniGameId;
 use MiniGame\Entity\PlayerId;
+use MiniGameMessageApp\MiniGameApplicationUser;
 
 interface MiniGameUserFinder
 {
+    /**
+     * Finds an user by its primary key / identifier.
+     *
+     * @param  string $id The identifier.
+     *
+     * @return MiniGameApplicationUser The user.
+     */
+    public function find($id);
+
+    /**
+     * @param  MiniGameApplicationUser $user
+     * @return void
+     */
+    public function save(MiniGameApplicationUser $user);
+
     /**
      * Gets a user by a player id
      *
      * @param PlayerId $playerId
      *
-     * @return ApplicationUser
+     * @return MiniGameApplicationUser
      */
     public function getByPlayerId(PlayerId $playerId);
 
@@ -22,7 +37,7 @@ interface MiniGameUserFinder
      *
      * @param MiniGameId $gameId
      *
-     * @return ApplicationUser[]
+     * @return MiniGameApplicationUser[]
      */
     public function getByGameId(MiniGameId $gameId);
 }
