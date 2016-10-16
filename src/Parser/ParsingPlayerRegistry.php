@@ -5,7 +5,7 @@ namespace MiniGameMessageApp\Parser;
 use MessageApp\User\ApplicationUserId;
 use MiniGame\Entity\PlayerId;
 
-interface ParsingPlayerFinder
+interface ParsingPlayerRegistry
 {
     /**
      * Gets the active player for the user
