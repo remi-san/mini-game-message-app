@@ -14,6 +14,7 @@ use MiniGame\GameResult;
 use MiniGame\Result\AllPlayersResult;
 use MiniGameApp\Event\MiniGameAppErrorEvent;
 use MiniGameMessageApp\Finder\MiniGameUserFinder;
+use MiniGameMessageApp\MiniGameApplicationUser;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
@@ -82,18 +83,14 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
      */
     public function handle(EventInterface $event, Context $context = null)
     {
-        if (! ($event instanceof GameResult || $event instanceof MiniGameAppErrorEvent)) {
+        if (! $event instanceof GameResult) {
             return;
         }
 
         $this->logger->info(sprintf('Send message after "%s"', $event->getName()));
         $messageContext = $this->getMessageContext($context);
 
-        if ($event instanceof AllPlayersResult) {
-            $users = $this->userFinder->getByGameId($event->getGameId());
-        } else {
-            $users = [ $this->getUser($event->getPlayerId(), $messageContext) ];
-        }
+        $users = $this->getUsersList($event, $messageContext);
 
         $this->sendMessage($event, $users, $messageContext);
     }
@@ -175,5 +172,20 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
         };
 
         return $this->contextUserFinder->getUserByContextMessage($contextMessage);
+    }
+
+    /**
+     * @param GameResult $event
+     * @param mixed      $messageContext
+     *
+     * @return MiniGameApplicationUser[]
+     */
+    private function getUsersList(GameResult $event, $messageContext)
+    {
+        if ($event instanceof AllPlayersResult) {
+            return $this->userFinder->getByGameId($event->getGameId());
+        }
+
+        return [$this->getUser($event->getPlayerId(), $messageContext)];
     }
 }
