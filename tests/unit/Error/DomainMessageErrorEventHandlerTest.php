@@ -22,7 +22,6 @@ class DomainMessageErrorEventHandlerTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->error = \Mockery::mock(EventInterface::class);
-
         $this->eventBus = \Mockery::mock(EventBusInterface::class);
 
         $this->handler = new DomainMessageErrorEventHandler($this->eventBus);

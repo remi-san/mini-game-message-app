@@ -30,6 +30,9 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
     /** @var ApplicationUser | Mock */
     private $user;
 
+    /** @var Message */
+    private $message;
+
     /** @var SourceMessage | Mock */
     private $contextMessage;
 
@@ -62,6 +65,14 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
+        $this->playerId = PlayerId::create(42);
+        $this->gameId = MiniGameId::create(42);
+
+        $this->user = \Mockery::mock(ApplicationUser::class);
+        $this->message = \Mockery::mock(Message::class);
+        $this->contextMessage = \Mockery::mock(SourceMessage::class);
+        $this->context = \Mockery::mock(Context::class);
+
         $this->userFinder = \Mockery::mock(MiniGameUserFinder::class);
         $this->contextUserFinder = \Mockery::mock(ContextUserFinder::class);
         $this->messageFinder = \Mockery::mock(MessageFinder::class);
@@ -85,31 +96,13 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testUnsupportedEvent()
+    public function itShouldNotHandleAnUnsupportedEvent()
     {
-        $this->userFinder->shouldReceive('getByPlayerId')->never();
-        $this->messageSender->shouldReceive('send')->never();
+        $this->givenAnUnsupportedEvent();
+        $this->givenThereIsNoContext();
 
-        $this->event = \Mockery::mock(EventInterface::class);
-        $this->serviceUnderTest->handle($this->event);
-    }
-
-    /**
-     * @test
-     */
-    public function testIncompleteEvent()
-    {
-        $this->userFinder->shouldReceive('getByPlayerId')->never();
-        $this->messageSender->shouldReceive('send')->never();
-
-        $this->event = \Mockery::mock(GameResultEvent::class);
-        $this->event->shouldReceive('getPlayerId')->andReturn(null);
-        $this->event->shouldReceive('getName')->andReturn('name');
-            
-        $this->messageFactory
-            ->shouldReceive('buildMessage')
-            ->with([null], $this->event)
-            ->andReturn(null);
+        $this->assertUserWillNotBeRetrieved();
+        $this->assertNoMessageWillBeSent();
 
         $this->serviceUnderTest->handle($this->event);
     }
@@ -117,35 +110,13 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testCompleteEvent()
+    public function itShouldNotHandleAnIncompleteEvent()
     {
-        $this->playerId = PlayerId::create(42);
-        
-        $this->user = \Mockery::mock(ApplicationUser::class);
-        $this->user->shouldReceive('getId')->andReturn(new ApplicationUserId(33));
-        $this->user->shouldReceive('getName')->andReturn('Douglas');
-        $this->user->shouldReceive('getPreferredLanguage')->andReturn('fr');
-        
-        $message = \Mockery::mock(Message::class);
-        
-        $this->userFinder
-            ->shouldReceive('getByPlayerId')
-            ->with($this->playerId)
-            ->andReturn($this->user);
+        $this->givenAResultWithoutPlayer();
+        $this->givenThereIsNoContext();
 
-        $this->messageSender
-            ->shouldReceive('send')
-            ->with($message, null)
-            ->once();
-
-        $this->event = \Mockery::mock(GameResultEvent::class);
-        $this->event->shouldReceive('getPlayerId')->andReturn($this->playerId);
-        $this->event->shouldReceive('getName')->andReturn('name');
-            
-        $this->messageFactory
-            ->shouldReceive('buildMessage')
-            ->with([$this->user], $this->event)
-            ->andReturn($message);
+        $this->assertUserWillNotBeRetrieved();
+        $this->assertNoMessageWillBeSent();
 
         $this->serviceUnderTest->handle($this->event);
     }
@@ -153,79 +124,13 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testCompleteEventWithContext()
+    public function itShouldFailHandlingASimpleResultWithContextAndNotFoundUser()
     {
-        $this->user = \Mockery::mock(ApplicationUser::class);
-        $this->user->shouldReceive('getId')->andReturn(new ApplicationUserId(33));
-        $this->user->shouldReceive('getName')->andReturn('Douglas');
-        $this->user->shouldReceive('getPreferredLanguage')->andReturn('fr');
-        
-        $message = \Mockery::mock(Message::class);
+        $this->givenASimpleResult();
+        $this->givenThereIsAContext();
+        $this->givenUserCannotBeRetrieved();
 
-        $this->contextMessage = \Mockery::mock(SourceMessage::class);
-        $this->contextMessage->shouldReceive('getSource')->andReturn('sourceMessage');
-
-        $this->context = \Mockery::mock(Context::class);
-        $this->context->shouldReceive('getValue')->andReturn('context');
-        
-        $this->messageFinder
-            ->shouldReceive('findByReference')
-            ->with('context')
-            ->andReturn($this->contextMessage);
-
-        $this->contextUserFinder
-            ->shouldReceive('getUserByContextMessage')
-            ->with('sourceMessage')
-            ->andReturn($this->user);
-
-        $this->messageSender
-            ->shouldReceive('send')
-            ->with($message, 'sourceMessage')
-            ->once();
-
-        $this->event = \Mockery::mock(GameResultEvent::class);
-        $this->event->shouldReceive('getPlayerId')->andReturn(null);
-        $this->event->shouldReceive('getName')->andReturn('name');
-            
-        $this->messageFactory
-            ->shouldReceive('buildMessage')
-            ->with([$this->user], $this->event)
-            ->andReturn($message);
-
-        $this->serviceUnderTest->handle($this->event, $this->context);
-    }
-
-    /**
-     * @test
-     */
-    public function testCompleteEventWithContextAndNotFoundUser()
-    {
-        $this->playerId = PlayerId::create(42);
-
-        $this->contextMessage = \Mockery::mock(SourceMessage::class);
-        $this->contextMessage->shouldReceive('getSource')->andReturn('sourceMessage');
-
-        $this->context = \Mockery::mock(Context::class);
-        $this->context->shouldReceive('getValue')->andReturn('context');
-        
-        $this->messageFinder
-            ->shouldReceive('findByReference')
-            ->with('context')
-            ->andReturn($this->contextMessage);
-
-        $this->contextUserFinder
-            ->shouldReceive('getUserByContextMessage')
-            ->with('sourceMessage')
-            ->andReturn(null);
-
-        $this->userFinder
-            ->shouldReceive('getByPlayerId')
-            ->with($this->playerId)
-            ->andReturn(null);
-
-        $this->event = \Mockery::mock(GameResultEvent::class);
-        $this->event->shouldReceive('getPlayerId')->andReturn($this->playerId);
-        $this->event->shouldReceive('getName')->andReturn('name');
+        $this->assertNoMessageWillBeSent();
 
         $this->setExpectedException(\InvalidArgumentException::class);
 
@@ -235,36 +140,178 @@ class GameResultHandlerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testAllPlayersEvent()
+    public function itShouldHandleASimpleResultWithoutContext()
     {
-        $this->gameId = MiniGameId::create(42);
-        
-        $this->user = \Mockery::mock(ApplicationUser::class);
+        $this->givenASimpleResult();
+        $this->givenThereIsNoContext();
+        $this->givenUserCanBeRetrievedThroughResult();
+
+        $this->assertMessageWillBeSentWithoutContext();
+
+        $this->serviceUnderTest->handle($this->event);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldHandleAnIncompleteResultWithContext()
+    {
+        $this->givenAResultWithoutPlayer();
+        $this->givenThereIsAContext();
+        $this->givenUserCanBeRetrievedThroughContext();
+
+        $this->assertMessageWillBeSentWithContext();
+
+        $this->serviceUnderTest->handle($this->event, $this->context);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldHandleAMultiplePlayersResult()
+    {
+        $this->givenAMultiplePlayersResult();
+        $this->givenUsersCanBeRetrievedThroughTheGame();
+
+        $this->assertMessageWillBeSentWithoutContext();
+
+        $this->serviceUnderTest->handle($this->event);
+    }
+
+    private function initUser()
+    {
         $this->user->shouldReceive('getId')->andReturn(new ApplicationUserId(33));
         $this->user->shouldReceive('getName')->andReturn('Douglas');
         $this->user->shouldReceive('getPreferredLanguage')->andReturn('fr');
-        
-        $message = \Mockery::mock(Message::class);
-        
+
+        $this->givenAMessageCanBeBuilt();
+    }
+
+    private function messageCannotBeBuilt()
+    {
+        $this->messageFactory
+            ->shouldReceive('buildMessage')
+            ->with([null], $this->event)
+            ->andReturn(null);
+    }
+
+    private function givenAnUnsupportedEvent()
+    {
+        $this->event = \Mockery::mock(EventInterface::class);
+    }
+
+    private function givenAResultWithoutPlayer()
+    {
+        $this->event = \Mockery::mock(GameResultEvent::class);
+        $this->event->shouldReceive('getPlayerId')->andReturn(null);
+        $this->event->shouldReceive('getName')->andReturn('name');
+
+        $this->messageCannotBeBuilt();
+    }
+
+    private function givenAMultiplePlayersResult()
+    {
+        $this->event = \Mockery::mock(AllResultEvent::class);
+        $this->event->shouldReceive('getGameId')->andReturn($this->gameId);
+        $this->event->shouldReceive('getName')->andReturn('name');
+    }
+
+    private function givenThereIsNoContext()
+    {
+    }
+
+    private function givenASimpleResult()
+    {
+        $this->event = \Mockery::mock(GameResultEvent::class);
+        $this->event->shouldReceive('getPlayerId')->andReturn($this->playerId);
+        $this->event->shouldReceive('getName')->andReturn('name');
+    }
+
+    private function givenThereIsAContext()
+    {
+        $this->contextMessage->shouldReceive('getSource')->andReturn('sourceMessage');
+        $this->context->shouldReceive('getValue')->andReturn('context');
+
+        $this->messageFinder
+            ->shouldReceive('findByReference')
+            ->with('context')
+            ->andReturn($this->contextMessage);
+    }
+
+    private function givenAMessageCanBeBuilt()
+    {
+        $this->messageFactory
+            ->shouldReceive('buildMessage')
+            ->with([$this->user], $this->event)
+            ->andReturn($this->message);
+    }
+
+    private function givenUserCanBeRetrievedThroughResult()
+    {
+        $this->initUser();
+
+        $this->userFinder
+            ->shouldReceive('getByPlayerId')
+            ->with($this->playerId)
+            ->andReturn($this->user);
+    }
+
+    private function givenUserCanBeRetrievedThroughContext()
+    {
+        $this->initUser();
+
+        $this->contextUserFinder
+            ->shouldReceive('getUserByContextMessage')
+            ->with('sourceMessage')
+            ->andReturn($this->user);
+    }
+
+    private function givenUsersCanBeRetrievedThroughTheGame()
+    {
+        $this->initUser();
+
         $this->userFinder
             ->shouldReceive('getByGameId')
             ->with($this->gameId)
             ->andReturn([$this->user]);
+    }
 
+    private function givenUserCannotBeRetrieved()
+    {
+        $this->contextUserFinder
+            ->shouldReceive('getUserByContextMessage')
+            ->with('sourceMessage')
+            ->andReturn(null);
+
+        $this->userFinder
+            ->shouldReceive('getByPlayerId')
+            ->with($this->playerId)
+            ->andReturn(null);
+    }
+
+    private function assertUserWillNotBeRetrieved()
+    {
+        $this->userFinder->shouldReceive('getByPlayerId')->never();
+    }
+
+    private function assertNoMessageWillBeSent()
+    {
+        $this->messageSender->shouldReceive('send')->never();
+    }
+
+    private function assertMessageWillBeSentWithoutContext()
+    {
         $this->messageSender
             ->shouldReceive('send')
-            ->with($message, null)
+            ->with($this->message, null)
             ->once();
+    }
 
-        $this->event = \Mockery::mock(AllResultEvent::class);
-        $this->event->shouldReceive('getGameId')->andReturn($this->gameId);
-        $this->event->shouldReceive('getName')->andReturn('name');
-
-        $this->messageFactory
-            ->shouldReceive('buildMessage')
-            ->with([$this->user], $this->event)
-            ->andReturn($message);
-
-        $this->serviceUnderTest->handle($this->event);
+    private function assertMessageWillBeSentWithContext()
+    {
+        $this->messageSender
+            ->shouldReceive('send')
+            ->with($this->message, 'sourceMessage')
+            ->once();
     }
 }

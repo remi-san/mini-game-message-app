@@ -27,7 +27,7 @@ class GameResultTextExtractorTest extends \PHPUnit_Framework_TestCase
         $this->gameResult = \Mockery::mock(GameResult::class);
         $this->innerExtractor = \Mockery::mock(MessageTextExtractor::class);
 
-
+        $this->extractor = new GameResultTextExtractor([$this->innerExtractor]);
     }
 
     public function tearDown()
@@ -38,14 +38,9 @@ class GameResultTextExtractorTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testWithGameResult()
+    public function itShouldExtractMessageIfInnerExtractorsCan()
     {
-        $this->innerExtractor->shouldReceive('extractMessage')
-            ->with($this->gameResult)
-            ->andReturn($this->message)
-            ->once();
-
-        $this->extractor = new GameResultTextExtractor([$this->innerExtractor]);
+        $this->givenInnerExtractorCanExtractMessage();
 
         $extractedMessage = $this->extractor->extractMessage($this->gameResult);
 
@@ -55,25 +50,36 @@ class GameResultTextExtractorTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function testWithUnmanagedGameResult()
+    public function itShouldFailExtractingMessageIfInnerExtractorsCannot()
     {
-        $this->gameResult = \Mockery::mock(GameResult::class);
-
-        $this->extractor = new GameResultTextExtractor();
+        $this->givenInnerExtractorCannotExtractMessage();
 
         $this->setExpectedException(\InvalidArgumentException::class);
+
         $this->extractor->extractMessage($this->gameResult);
     }
 
     /**
      * @test
      */
-    public function testWithUnknownObject()
+    public function itShouldNotExtractMessageIfNotAGameResult()
     {
-        $this->extractor = new GameResultTextExtractor();
-
         $extractedMessage = $this->extractor->extractMessage(null);
 
         $this->assertNull($extractedMessage);
+    }
+
+    private function givenInnerExtractorCanExtractMessage()
+    {
+        $this->innerExtractor->shouldReceive('extractMessage')
+            ->with($this->gameResult)
+            ->andReturn($this->message);
+    }
+
+    private function givenInnerExtractorCannotExtractMessage()
+    {
+        $this->innerExtractor->shouldReceive('extractMessage')
+            ->with($this->gameResult)
+            ->andReturn(null);
     }
 }
