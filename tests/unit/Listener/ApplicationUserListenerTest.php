@@ -5,9 +5,9 @@ namespace MiniGameMessageApp\Test\Listener;
 use League\Event\EventInterface;
 use MiniGame\Entity\MiniGameId;
 use MiniGame\Entity\PlayerId;
-use MiniGameMessageApp\Finder\MiniGameUserFinder;
+use MiniGameMessageApp\Store\MiniGameUserStore;
 use MiniGameMessageApp\Listener\ApplicationUserListener;
-use MiniGameMessageApp\MiniGameApplicationUser;
+use MiniGameMessageApp\PersistableMiniGameUser;
 use MiniGameMessageApp\Test\Mock\MiniGamePlayerCreatedEvent;
 use Mockery\Mock;
 
@@ -25,11 +25,12 @@ class ApplicationUserListenerTest extends \PHPUnit_Framework_TestCase
     /** @var PlayerId */
     private $playerId;
 
-    /** @var MiniGameApplicationUser | Mock */
+    /** @var PersistableMiniGameUser | Mock */
     private $user;
 
-    /** @var MiniGameUserFinder | Mock */
-    private $finder;
+    /** @var MiniGameUserStore | Mock */
+    private $store;
+
     /** @var ApplicationUserListener */
     private $serviceUnderTest;
 
@@ -42,11 +43,11 @@ class ApplicationUserListenerTest extends \PHPUnit_Framework_TestCase
         $this->gameId = MiniGameId::create();
         $this->playerId = PlayerId::create();
 
-        $this->user = \Mockery::mock(MiniGameApplicationUser::class);
+        $this->user = \Mockery::mock(PersistableMiniGameUser::class);
 
-        $this->finder = \Mockery::mock(MiniGameUserFinder::class);
+        $this->store = \Mockery::mock(MiniGameUserStore::class);
 
-        $this->serviceUnderTest = new ApplicationUserListener($this->finder);
+        $this->serviceUnderTest = new ApplicationUserListener($this->store);
     }
 
     /**
@@ -112,14 +113,14 @@ class ApplicationUserListenerTest extends \PHPUnit_Framework_TestCase
 
     private function assertUserWillNotBeModified()
     {
-        $this->finder
+        $this->store
             ->shouldReceive('save')
             ->never();
     }
 
     private function assertUserWillBeModified()
     {
-        $this->finder
+        $this->store
             ->shouldReceive('find')
             ->with($this->extRef)
             ->andReturn($this->user);
@@ -129,7 +130,7 @@ class ApplicationUserListenerTest extends \PHPUnit_Framework_TestCase
             ->with($this->gameId, $this->playerId)
             ->once();
 
-        $this->finder
+        $this->store
             ->shouldReceive('save')
             ->with($this->user)
             ->once();

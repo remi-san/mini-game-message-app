@@ -5,7 +5,7 @@ namespace MiniGameMessageApp\Listener;
 use League\Event\EventInterface;
 use League\Event\ListenerInterface;
 use MiniGame\Event\PlayerCreatedEvent;
-use MiniGameMessageApp\Finder\MiniGameUserFinder;
+use MiniGameMessageApp\Store\MiniGameUserStore;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
@@ -15,19 +15,19 @@ class ApplicationUserListener implements ListenerInterface, LoggerAwareInterface
     use LoggerAwareTrait;
 
     /**
-     * @var MiniGameUserFinder
+     * @var MiniGameUserStore
      */
-    private $finder;
+    private $store;
 
     /**
      * Constructor
      *
-     * @param MiniGameUserFinder $finder
+     * @param MiniGameUserStore $store
      */
     public function __construct(
-        MiniGameUserFinder $finder
+        MiniGameUserStore $store
     ) {
-        $this->finder = $finder;
+        $this->store = $store;
         $this->logger = new NullLogger();
     }
 
@@ -44,11 +44,11 @@ class ApplicationUserListener implements ListenerInterface, LoggerAwareInterface
             return;
         }
 
-        $applicationUser = $this->finder->find($event->getExternalReference());
+        $applicationUser = $this->store->find($event->getExternalReference());
 
         $applicationUser->linkToPlayer($event->getGameId(), $event->getPlayerId());
 
-        $this->finder->save($applicationUser);
+        $this->store->save($applicationUser);
     }
 
     /**

@@ -2,11 +2,11 @@
 
 namespace MiniGameMessageApp;
 
-use MessageApp\User\ApplicationUser;
+use MessageApp\User\PersistableUser;
 use MiniGame\Entity\MiniGameId;
 use MiniGame\Entity\PlayerId;
 
-interface MiniGameApplicationUser extends ApplicationUser
+interface PersistableMiniGameUser extends PersistableUser
 {
     /**
      * @param MiniGameId $miniGameId

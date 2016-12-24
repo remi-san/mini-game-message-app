@@ -12,9 +12,7 @@ use MessageApp\User\Finder\ContextUserFinder;
 use MiniGame\Entity\PlayerId;
 use MiniGame\GameResult;
 use MiniGame\Result\AllPlayersResult;
-use MiniGameApp\Event\MiniGameAppErrorEvent;
 use MiniGameMessageApp\Finder\MiniGameUserFinder;
-use MiniGameMessageApp\MiniGameApplicationUser;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
@@ -178,7 +176,7 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
      * @param GameResult $event
      * @param mixed      $messageContext
      *
-     * @return MiniGameApplicationUser[]
+     * @return ApplicationUser[]
      */
     private function getUsersList(GameResult $event, $messageContext)
     {
@@ -186,6 +184,6 @@ class GameResultHandler implements MessageEventHandler, LoggerAwareInterface
             return $this->userFinder->getByGameId($event->getGameId());
         }
 
-        return [$this->getUser($event->getPlayerId(), $messageContext)];
+        return [ $this->getUser($event->getPlayerId(), $messageContext) ];
     }
 }
