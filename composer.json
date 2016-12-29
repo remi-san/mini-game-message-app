@@ -29,8 +29,12 @@
     },
     "autoload": {
         "psr-4": {
-            "MiniGameMessageApp\\": "src/",
-            "MiniGameMessageApp\\Test\\" : "tests/unit/"
+            "MiniGameMessageApp\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MiniGameMessageApp\\": "src/"
         }
     },
     "suggest": {
