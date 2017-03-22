@@ -3,14 +3,14 @@
 namespace MiniGameMessageApp\Test\Error;
 
 use Broadway\Domain\DomainEventStream;
-use Broadway\EventHandling\EventBusInterface;
+use Broadway\EventHandling\EventBus;
 use League\Event\EventInterface;
 use MiniGameMessageApp\Error\DomainMessageErrorEventHandler;
 use Mockery\Mock;
 
 class DomainMessageErrorEventHandlerTest extends \PHPUnit_Framework_TestCase
 {
-    /** @var EventBusInterface | Mock */
+    /** @var EventBus | Mock */
     private $eventBus;
 
     /** @var EventInterface */
@@ -22,7 +22,7 @@ class DomainMessageErrorEventHandlerTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->error = \Mockery::mock(EventInterface::class);
-        $this->eventBus = \Mockery::mock(EventBusInterface::class);
+        $this->eventBus = \Mockery::mock(EventBus::class);
 
         $this->handler = new DomainMessageErrorEventHandler($this->eventBus);
     }

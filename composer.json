@@ -24,8 +24,8 @@
         "Mockery/Mockery": "~0.9",
         "friendsofphp/php-cs-fixer": "^1.10",
         "squizlabs/php_codesniffer": "~2.0",
-        "broadway/broadway": "^0.9",
-        "remi-san/broadway-tools" : "^0.1@dev"
+        "broadway/broadway": "^1.0",
+        "remi-san/broadway-tools" : "^0.2@dev"
     },
     "autoload": {
         "psr-4": {

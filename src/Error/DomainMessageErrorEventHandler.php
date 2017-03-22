@@ -5,7 +5,7 @@ namespace MiniGameMessageApp\Error;
 use Broadway\Domain\DomainEventStream;
 use Broadway\Domain\DomainMessage;
 use Broadway\Domain\Metadata;
-use Broadway\EventHandling\EventBusInterface;
+use Broadway\EventHandling\EventBus;
 use Broadway\Tools\Metadata\Context\ContextEnricher;
 use League\Event\EventInterface;
 use MessageApp\Error\ErrorEventHandler as MessageErrorEventHandler;
@@ -14,16 +14,16 @@ use MiniGameApp\Error\ErrorEventHandler as GameErrorEventHandler;
 class DomainMessageErrorEventHandler implements GameErrorEventHandler, MessageErrorEventHandler
 {
     /**
-     * @var EventBusInterface
+     * @var EventBus
      */
     private $eventBus;
 
     /**
      * Constructor
      *
-     * @param EventBusInterface $eventBus
+     * @param EventBus $eventBus
      */
-    public function __construct(EventBusInterface $eventBus)
+    public function __construct(EventBus $eventBus)
     {
         $this->eventBus = $eventBus;
     }
